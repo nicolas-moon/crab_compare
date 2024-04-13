@@ -1,0 +1,3 @@
+repo_path = "."
+target_branches = ["main", "staging"]
+output_table = "Table"
