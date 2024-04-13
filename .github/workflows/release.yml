@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*'
-
+      
 jobs:
   build-and-release:
     name: Build and release on ${{ matrix.os }}
