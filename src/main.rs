@@ -32,7 +32,7 @@ impl Config {
 #[clap(author, version, about, long_about = None)]
 struct Args {
     /// path to the config toml for the compare run
-    #[clap(short, long, default_value = "compare.toml")]
+    #[clap(short, long, default_value = "crab.toml")]
     config: String,
 
     /// Path to the git repository
@@ -61,7 +61,6 @@ impl Args {
 
 fn main() {
     let args = Args::parse();
-
     let config = if fs::metadata(&args.config).is_ok() {
         let content = fs::read_to_string(&args.config).expect("failed to read config file");
         let mut config: Config = toml::from_str(&content).expect("failed to parse config file");
@@ -81,12 +80,6 @@ fn main() {
 
 fn compare_with_all_branches(config: &Config) -> Result<(), Box<dyn Error>> {
     let repo = Repository::open(&config.repo_path)?;
-    // let target_ref = repo
-    //     .find_branch(&config.target_branch, BranchType::Local)?
-    //     .get()
-    //     .peel_to_commit()?;
-    // let target_commit_id = target_ref.id();
-    // let branches = repo.branches(Some(BranchType::Local))?;
 
     let branches = repo.branches(Some(BranchType::Local))?;
     let target_branch_ids = config

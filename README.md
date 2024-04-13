@@ -15,6 +15,73 @@ ensures fast, accurate, and resource-efficient comparisons.
 
 ### Installation (WIP):
 
+#### Prerequisites:
+
+before you being, ensure you meet the following requirements:
+
+- Rust (latest stable version recommended)
+- Cargo (comes with rust 🦀)
+- Git
+
+#### Installation:
+
+##### Build from source:
+
+```bash
+git clone git@github.com:nicolas-moon/crab_compare.git
+cd crab_compare
+cargo build --release
+```
+
+##### Install from source:
+
+```bash 
+git clone git@github.com:nicolas-moon/crab_compare.git
+cd crab_compare
+cargo install --path .
+```
+
+## Configuration:
+
+Crab Compare can be configured using a `crab.toml` file located in the current directory, or by specifying options
+directly
+via command-line arguemtns An example configuration file might look like this:
+
+```toml
+repo_path = "/path/to/repo"
+target_branches = ["main", "develop", "feature/branch"]
+output_format = "Markdown" # or "Table"
+```
+
+## Usage:
+
+Run Crab Compare by using the following command:
+
+From build directory:
+
+```bash
+./target/release/crab_compare
+```
+
+Using install command:
+
+```bash
+crab_compare
+```
+
+you can override the TOML configuration with command-line arguments:
+
+```bash
+crab_compare --repo-path "/another/path" --target-branches main,dev --ouput-format Table
+```
+
+## Command-Line Options
+
+- `--config`: Path to the configuration file. Default is `crab.toml`
+- `--repo-path`: Path to the Git repository
+- `--target-branches`: Comma-separated list of branches to compare
+- `--ouput-format`: Output format (Markdown or Table)
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any
