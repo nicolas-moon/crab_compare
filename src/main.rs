@@ -2,8 +2,9 @@ use std::{error::Error, fs};
 
 use clap::{Parser, ValueEnum};
 use git2::{BranchType, Repository};
-use prettytable::{Cell, row, Row, Table};
+use prettytable::{row, Cell, Row, Table};
 use serde::Deserialize;
+use std::process::Command;
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy, Deserialize, ValueEnum)]
 enum OutputFormat {
@@ -16,6 +17,7 @@ struct Config {
     repo_path: String,
     target_branches: Vec<String>,
     output_table: OutputFormat,
+    fetch_all: bool,
 }
 
 impl Config {
@@ -24,6 +26,7 @@ impl Config {
             repo_path: ".".to_string(),
             target_branches: vec!["main".to_string()],
             output_table: OutputFormat::Table,
+            fetch_all: true,
         }
     }
 }
@@ -46,6 +49,10 @@ struct Args {
     /// Enable output in table format
     #[clap(long, default_value = "table")]
     output_table: Option<OutputFormat>,
+
+    /// Enable fetching all git branches before running comparison
+    #[clap(long, default_value = "false")]
+    fetch_all: Option<bool>,
 }
 
 impl Args {
@@ -55,6 +62,7 @@ impl Args {
             repo_path: self.repo_path.unwrap_or(config.repo_path),
             target_branches: self.target_branches.unwrap_or(config.target_branches),
             output_table: self.output_table.unwrap_or(config.output_table),
+            fetch_all: self.fetch_all.unwrap_or(config.fetch_all),
         }
     }
 }
@@ -71,6 +79,14 @@ fn main() {
     } else {
         Config::new()
     };
+
+    if config.fetch_all {
+        let _ = Command::new("git")
+            .arg("fetch")
+            .arg("--all")
+            .output()
+            .expect("Failed to execute git fetch --all");
+    }
 
     match compare_with_all_branches(&config) {
         Ok(_) => println!("Comparison complete."),
@@ -113,7 +129,10 @@ fn compare_with_all_branches(config: &Config) -> Result<(), Box<dyn Error>> {
             for (target_branch, target_id) in &target_branch_ids {
                 if *target_id == commit_id {
                     match config.output_table {
-                        OutputFormat::Markdown => results.push(format!("| {} | {} | {} |", branch_name, commit_id, target_branch)),
+                        OutputFormat::Markdown => results.push(format!(
+                            "| {} | {} | {} |",
+                            branch_name, commit_id, target_branch
+                        )),
                         OutputFormat::Table => {
                             table.add_row(Row::new(vec![
                                 Cell::new(&branch_name),
